@@ -141,7 +141,8 @@ public with sharing class LwcEditorController {
     public static String createLWCResource(String filename, String format, String bundleId, String bundleName) {   
         try{   
             String endpoint = BASEURL + toolingapi + subpath_lwcresource;
-            String sessionId = getSessionId();              
+            String sessionId = getSessionId();      
+            if(filename.endsWith('.js-meta.xml')) format='js';
             String content;
             if(format=='html') content = '<template>\n\n</template>';
             if(format=='js' && filename.endsWith('.js')) content = 'import { LightningElement } from \'lwc\';\n\nexport default class '+bundleName+' extends LightningElement {}';
