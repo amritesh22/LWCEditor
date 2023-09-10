@@ -42,21 +42,11 @@ public with sharing class LwcEditorController {
             Map<String, wrapBundle> mapBundle = getLwcBundles();
             if(mapBundle.isEmpty()) throw new customException('not able to fetch lightning web bundles');
             String endpoint;
-            //if(String.isBlank(nexturl)) {
             String query = 'SELECT Id, LightningComponentBundleId, LightningComponentBundle.DeveloperName, FilePath, Format FROM LightningComponentResource WHERE ManageableState=\'unmanaged\' ORDER BY LightningComponentBundle.DeveloperName, FilePath';
-            endpoint = BASEURL + toolingapi + subpath_query + EncodingUtil.urlEncode(query, 'UTF-8');
-            //} else {
-            //    endpoint = BASEURL + nexturl;
-            //}        
+            endpoint = BASEURL + toolingapi + subpath_query + EncodingUtil.urlEncode(query, 'UTF-8');      
             String sessionId = getSessionId();            
             HttpResponse res = makeCallout(endpoint, 'GET', null, new Map<String, String>{ 'Authorization' => 'Bearer ' + sessionId} );            
             String resBody = res.getBody();                    
-            //wrapResponse result = (wrapResponse) JSON.deserialize(resBody, wrapResponse.class);
-            /*if(String.isNotBlank(result.nextRecordsUrl)) {                
-            List<Object> lstResult = getLwcComponents(result.nextRecordsUrl);
-            if(lstResult==null) return null;
-            else result.records.addAll(lstResult);                    
-            }*/
             Map<String, Object> jsonMap =  (Map<String, Object>) JSON.deserializeUntyped(resBody);
             List<wrapResource> lstResources = (List<wrapResource>) JSON.deserialize(JSON.serialize(jsonMap.get('records')), List<wrapResource>.class);
             
@@ -85,9 +75,7 @@ public with sharing class LwcEditorController {
     
     @AuraEnabled
     public static Object getLwcComponentBody(String componentId) {
-        try{            
-            //String query = 'SELECT FilePath, Format, Source FROM LightningComponentResource WHERE Id=\''+componentId+'\'';            
-            //String endpoint = BASEURL + toolingapi + '?q=' + EncodingUtil.urlEncode(query, 'UTF-8');              
+        try{                         
             String endpoint = BASEURL + toolingapi + subpath_lwcresource + '/' + componentId;
             String sessionId = getSessionId();            
             HttpResponse res = makeCallout(endpoint, 'GET', null, new Map<String, String>{ 'Authorization' => 'Bearer ' + sessionId} );
@@ -128,10 +116,7 @@ public with sharing class LwcEditorController {
                 if(String.isNotBlank(bundleBody)) updateLWCBundle(bundleId, bundleBody);
             }
             
-            return 'success';
-            //if(res.getStatusCode() == 302) {
-            //    System.debug('Location : ' + res.getHeader('Location'));
-            //}                        
+            return 'success';                       
         } catch(Exception ex) {
             System.debug('Error: ' + ex.getMessage() + ex.getStackTraceString()); 
             return 'error: '+ ex.getMessage();
@@ -145,10 +130,7 @@ public with sharing class LwcEditorController {
             String sessionId = getSessionId();  
                                     
             HttpResponse res = makeCallout(endpoint, 'PATCH', body, new Map<String, String>{ 'Authorization' => 'Bearer ' + sessionId} );        
-            return 'success';
-            //if(res.getStatusCode() == 302) {
-            //    System.debug('Location : ' + res.getHeader('Location'));
-            //}                        
+            return 'success';                      
         } catch(Exception ex) {
             System.debug('Error: ' + ex.getMessage() + ex.getStackTraceString()); 
             return 'error: '+ ex.getMessage();
@@ -159,15 +141,12 @@ public with sharing class LwcEditorController {
     public static String createLWCResource(String filename, String format, String bundleId, String bundleName) {   
         try{   
             String endpoint = BASEURL + toolingapi + subpath_lwcresource;
-            String sessionId = getSessionId();  
-            
-            //String format = filename.substringAfterLast('.');
-            
+            String sessionId = getSessionId();              
             String content;
             if(format=='html') content = '<template>\n\n</template>';
             if(format=='js' && filename.endsWith('.js')) content = 'import { LightningElement } from \'lwc\';\n\nexport default class '+bundleName+' extends LightningElement {}';
-            if(format=='xml') content = '<?xml version="1.0" encoding="UTF-8"?>\n<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">\n    <apiVersion>58.0</apiVersion>\n    <isExposed>false</isExposed>\n</LightningComponentBundle>';            
-            //if(format=='css') content = 'div{}';            
+            if(format=='js' && filename.endsWith('.js-meta.xml')) content = '<?xml version="1.0" encoding="UTF-8"?>\n<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">\n    <apiVersion>58.0</apiVersion>\n    <isExposed>false</isExposed>\n</LightningComponentBundle>';            
+            if(format=='css') content = 'div{}';            
             
             String fpath = 'lwc/'+bundleName+'/'+filename;
                         
@@ -207,15 +186,11 @@ public with sharing class LwcEditorController {
             gen.writeStringField('FullName', developerName);                        
             gen.writeFieldName('Metadata');
             gen.writeStartObject();
-            gen.writeNumberField('apiVersion', 58);    
-            //gen.writeNullField('description');
-            //gen.writeBooleanField('isExplicitImport', false);
-            //gen.writeBooleanField('isExposed', true);
+            gen.writeNumberField('apiVersion', 58);
             gen.writeStringField('masterLabel', developerName);
             gen.writeEndObject();
             gen.writeEndObject();
-            
-            //String body = '{"FullName":"'+developerName+'","Metadata":{"apiVersion":48,"description": null,"isExplicitImport": false,"isExposed": '+isExposed+',"masterLabel": "'+developerName+'",'+targ+'}}';
+                        
             String body = gen.getAsString();                  
             HTTPResponse res = makeCallout(endpoint, 'POST', body, new Map<String, String>{ 'Authorization' => 'Bearer ' + getSessionId()} );        
             String responseBody = res.getBody();

@@ -1,23 +1,8 @@
 <template>
-    <!--lightning-card hide-header="true" class="nomargin"-->
+    
     <section class="resizeable-container" onmouseup={handleOnMouseUp} onmousemove={handleOnMouseMove}>
         <div class="resizeable-item-1">
-            <div class="left-panel">
-                <!--ul>
-                        <template for:each={lwcComponents} for:item="bundle">
-                            <li key={bundle.bundleid}>
-                                {bundle.bundlename}
-                                <ul class="bundle">
-                                    <template for:each={bundle.components} for:item="component">
-                                        <li key={component.filename} data-id={component.fileid} onclick={handleComponentClick}>
-                                            {component.filename}
-                                        </li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template-->
-                <!--lightning-tree-grid columns={gridColumns} data={lwcComponents}  key-field="name" 
-                        hide-checkbox-column="true" resize-column-disabled="true"></lightning-tree-grid-->
+            <div class="left-panel">                
                 <div class="treeheader slds-clearfix">
                     <span class="slds-text-heading_small">LW Components</span>
                     <div class="slds-float_right slds-p-horizontal_x-small">   
@@ -26,11 +11,7 @@
                     </div>                    
                 </div>
                 <div class="file-explorer">
-                    <!--lightning-tree items={componentTree} selected-item={selectedTreeComponent}
-                        onselect={handleComponentClick}>
-                    </lightning-tree-->
-                    <div class="slds-tree_container">
-                        <!--h4 class="slds-tree__group-header" id="treeheading">Tree Group Header</h4-->
+                    <div class="slds-tree_container">                        
                         <ul class="slds-tree"> 
                             <template for:each={componentTree} for:item="bundle">
                             <li aria-level="1" data-expanded={bundle.expanded} key={bundle.fileid} data-id={bundle.fileid}>
@@ -45,8 +26,7 @@
                                         </span>
                                     </span>
                                     <div class="slds-clearfix slds-p-horizontal_x-small">
-                                        <div class="slds-float_right">   
-                                            <!--lightning-button-icon icon-name="utility:record_create" variant="bare" alternative-text="New File" title="New File"></lightning-button-icon-->
+                                        <div class="slds-float_right">                                               
                                             <lightning-button-icon icon-name="action:add_file" variant="bare" alternative-text="New File" title="New File" onclick={bundle.createlwcfile}></lightning-button-icon>
                                             <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Delete" title="Delete" onclick={bundle.deletelwcbundle} class="slds-m-left_xx-small"></lightning-button-icon>                                             
                                         </div>
@@ -80,16 +60,6 @@
         </div>
         <div class="resizer-x" onmousedown={handleOnMouseDown}></div>
         <div class="resizeable-item-2">
-            <!--div class="right-panel"-->
-                <!--lightning-tabset>
-                    <template for:each={opencomponents} for:item="component">
-                        <lightning-tab label={component.name} value={component.fileid} key={component.fileid} end-icon-name="utility:close" onclick={handletabclick}>
-                            <div class="code-panel">
-                                <iframe src={component.codeeditorurl} height="100%" width="100%"></iframe>                                        
-                            </div>
-                        </lightning-tab>
-                    </template>                            
-                </lightning-tabset-->
                 <div class="right-panel slds-tabs_default slds-sub-tabs opentabs">
                     <ul class="slds-tabs_default__nav">
                         <template for:each={opencomponents} for:item="component">

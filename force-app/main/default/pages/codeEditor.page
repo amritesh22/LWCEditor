@@ -17,7 +17,6 @@
         <script type="text/javascript">             	
         	var editor;
         	var componentId = '{!$CurrentPage.parameters.component}';
-        	var accessToken = "{!$Api.Session_ID}";
         	var codechanged = false;
         
             function initEditor(content, filetype) {
@@ -30,22 +29,7 @@
     
                 // Load the Monaco editor
                 require(["vs/editor/editor.main"], function () {
-                    /*function adjustDivToBodySize(adjustableDiv) {
-                        if(!adjustableDiv) return;
-                        const bodyWidth = document.body.clientWidth;
-                        const bodyHeight = document.body.clientHeight;            
-                        adjustableDiv.style.width = `${bodyWidth}px`;
-                        adjustableDiv.style.height = `${bodyHeight}px`;
-                        
-                        if(adjustableDiv!=document.querySelector(".monaco-editor"))
-                        adjustDivToBodySize(document.querySelector(".monaco-editor"));
-                    }*/      
-                    // Adjust the div size initially
-                    //adjustDivToBodySize(document.getElementById("container"));
-                
-                    // Listen for window resize and adjust the div size accordingly
-                    //window.addEventListener('resize', () => { adjustDivToBodySize(document.getElementById("container")); } );
-                    
+                                        
                     if(editor) editor.dispose();
                     // Create a Monaco editor instance
                     editor = monaco.editor.create(
@@ -88,12 +72,9 @@
                         },
                     });
                             
-                    editor.getModel().onDidChangeContent(() => {    					
-                            //if(codechanged==false){
-                            //console.log('Content changed');
-                        	codechanged = true;
-                        	sendMessageToLWC('lwceditor.componentchanged', componentId);
-                            //}
+                    editor.getModel().onDidChangeContent(() => {    					                          
+                        codechanged = true;
+                    	sendMessageToLWC('lwceditor.componentchanged', componentId);
 					});
                 });
             }
@@ -101,46 +82,7 @@
         </script>
         
         <script type="text/javascript">
-        
-        	function fetchComponentBody() {
-                
-                let componentId = "{!$CurrentPage.parameters.component}";
-				let query = "SELECT FilePath, Format, Source FROM LightningComponentResource WHERE Id='{!$CurrentPage.parameters.component}'";
-                let endpoint = '{!BASEURL}/services/data/v58.0/tooling/query/?q=' + encodeURI(query);                
-                fetch(endpoint, {
-                	method: 'GET',
-                	headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                  },
-                })
-                .then(response => {
-                    if (!response.ok) {
-                      throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {                    
-                    //console.log(data);                    
-                    if(data.records) {
-                        let record = data.records[0];
-                        let filetype = 'javascript';
-                        if(record.FilePath.endsWith('html')) filetype = 'html';
-                        else if(record.FilePath.endsWith('css')) filetype = 'css';
-                        else if(record.FilePath.endsWith('xml')) filetype = 'xml'; 
-                    	else if(record.FilePath.endsWith('json')) filetype = 'json'; 
-                    	else if(record.FilePath.endsWith('svg')) filetype = 'svg'; 
-                        initEditor(record.Source, filetype);
-                    }
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                    initEditor('error fetching the content', 'html');
-                });
-            }    
-                    
-            
-        	
+                	
             function sendMessageToLWC(name, payload) {
                 var message = {
                     name: name,
@@ -167,8 +109,7 @@
                 }
             }, false);
         
-        	sendMessageToLWC('lwceditor.requestcomponentbody', componentId);
-        	//fetchComponentBody();
+        	sendMessageToLWC('lwceditor.requestcomponentbody', componentId);        	
         </script>
     </body>
 </html>
