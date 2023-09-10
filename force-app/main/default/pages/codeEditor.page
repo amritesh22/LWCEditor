@@ -1,0 +1,176 @@
+<apex:page docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" showHeader="false" standardStylesheets="false" controller="LwcEditorController">
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Monaco Editor</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs/editor/editor.main.css" />
+        <style> 
+            html, body { margin:0; padding:0; height: 100%; overflow: hidden; }
+            #container{ height: 100%; }            
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs/loader.js">
+        </script>
+        <script type="text/javascript">             	
+        	var editor;
+        	var componentId = '{!$CurrentPage.parameters.component}';
+        	var accessToken = "{!$Api.Session_ID}";
+        	var codechanged = false;
+        
+            function initEditor(content, filetype) {
+                // Inside the <script> tag in the HTML file
+                require.config({
+                    paths: {
+                        vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs",
+                    },
+                });
+    
+                // Load the Monaco editor
+                require(["vs/editor/editor.main"], function () {
+                    /*function adjustDivToBodySize(adjustableDiv) {
+                        if(!adjustableDiv) return;
+                        const bodyWidth = document.body.clientWidth;
+                        const bodyHeight = document.body.clientHeight;            
+                        adjustableDiv.style.width = `${bodyWidth}px`;
+                        adjustableDiv.style.height = `${bodyHeight}px`;
+                        
+                        if(adjustableDiv!=document.querySelector(".monaco-editor"))
+                        adjustDivToBodySize(document.querySelector(".monaco-editor"));
+                    }*/      
+                    // Adjust the div size initially
+                    //adjustDivToBodySize(document.getElementById("container"));
+                
+                    // Listen for window resize and adjust the div size accordingly
+                    //window.addEventListener('resize', () => { adjustDivToBodySize(document.getElementById("container")); } );
+                    
+                    if(editor) editor.dispose();
+                    // Create a Monaco editor instance
+                    editor = monaco.editor.create(
+                        document.getElementById("container"),
+                        {
+                            value: content,
+                            language: filetype, // Specify the language mode
+                            automaticLayout: true,
+                            scrollBeyondLastLine: false,
+                            scrollbar: { 
+                                verticalHasArrows: true,
+                                horizontalHasArrows: true,                        
+                                verticalScrollbarSize: 12,
+                                horizontalScrollbarSize: 12,
+                                arrowSize: 20,
+                            },
+                            readOnly: false,
+                            minimap: { enabled: false }                            
+                        }
+                    );    
+                    
+                    editor.addAction({
+                        id: "save",
+                        label: "Save",       
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+                            monaco.KeyMod.chord(
+                                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S
+                            ),
+                        ],
+                        precondition: null,
+                        keybindingContext: null,                    
+                        contextMenuGroupId: "navigation",                    
+                        contextMenuOrder: 0.9,
+                        run: function (ed) {                            
+                            sendMessageToLWC(
+                                'lwceditor.savecomponent', 
+                                {componentid: componentId, body: editor.getValue()}
+                            );
+                        },
+                    });
+                            
+                    editor.getModel().onDidChangeContent(() => {    					
+                            //if(codechanged==false){
+                            //console.log('Content changed');
+                        	codechanged = true;
+                        	sendMessageToLWC('lwceditor.componentchanged', componentId);
+                            //}
+					});
+                });
+            }
+        	initEditor("Loading...", "html");
+        </script>
+        
+        <script type="text/javascript">
+        
+        	function fetchComponentBody() {
+                
+                let componentId = "{!$CurrentPage.parameters.component}";
+				let query = "SELECT FilePath, Format, Source FROM LightningComponentResource WHERE Id='{!$CurrentPage.parameters.component}'";
+                let endpoint = '{!BASEURL}/services/data/v58.0/tooling/query/?q=' + encodeURI(query);                
+                fetch(endpoint, {
+                	method: 'GET',
+                	headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                  },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    //console.log(data);                    
+                    if(data.records) {
+                        let record = data.records[0];
+                        let filetype = 'javascript';
+                        if(record.FilePath.endsWith('html')) filetype = 'html';
+                        else if(record.FilePath.endsWith('css')) filetype = 'css';
+                        else if(record.FilePath.endsWith('xml')) filetype = 'xml'; 
+                    	else if(record.FilePath.endsWith('json')) filetype = 'json'; 
+                    	else if(record.FilePath.endsWith('svg')) filetype = 'svg'; 
+                        initEditor(record.Source, filetype);
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    initEditor('error fetching the content', 'html');
+                });
+            }    
+                    
+            
+        	
+            function sendMessageToLWC(name, payload) {
+                var message = {
+                    name: name,
+                    payload: payload
+                };
+                parent.postMessage(message, '{!LWCBASEURL}');
+            }
+        	
+        	window.addEventListener("message", function(event){
+                if(event.origin !== '{!LWCBASEURL}'){
+                    //console.log(`vf listener : not expected origin ${event.origin}`);
+                    return;
+                }
+                //console.log(event.data);
+                if(event.data.name==='lwceditor.returncomponentbody') {
+                    let record = event.data.payload;
+                    let filetype = 'javascript';
+                    if(record.FilePath.endsWith('html')) filetype = 'html';
+                    else if(record.FilePath.endsWith('css')) filetype = 'css';
+                    else if(record.FilePath.endsWith('xml')) filetype = 'xml'; 
+                    else if(record.FilePath.endsWith('json')) filetype = 'json'; 
+                    else if(record.FilePath.endsWith('svg')) filetype = 'svg'; 
+                    initEditor(record.Source, filetype);   
+                }
+            }, false);
+        
+        	sendMessageToLWC('lwceditor.requestcomponentbody', componentId);
+        	//fetchComponentBody();
+        </script>
+    </body>
+</html>
+
+</apex:page>

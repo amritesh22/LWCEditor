@@ -1,0 +1,126 @@
+<template>
+    <!--lightning-card hide-header="true" class="nomargin"-->
+    <section class="resizeable-container" onmouseup={handleOnMouseUp} onmousemove={handleOnMouseMove}>
+        <div class="resizeable-item-1">
+            <div class="left-panel">
+                <!--ul>
+                        <template for:each={lwcComponents} for:item="bundle">
+                            <li key={bundle.bundleid}>
+                                {bundle.bundlename}
+                                <ul class="bundle">
+                                    <template for:each={bundle.components} for:item="component">
+                                        <li key={component.filename} data-id={component.fileid} onclick={handleComponentClick}>
+                                            {component.filename}
+                                        </li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template-->
+                <!--lightning-tree-grid columns={gridColumns} data={lwcComponents}  key-field="name" 
+                        hide-checkbox-column="true" resize-column-disabled="true"></lightning-tree-grid-->
+                <div class="treeheader slds-clearfix">
+                    <span class="slds-text-heading_small">LW Components</span>
+                    <div class="slds-float_right slds-p-horizontal_x-small">   
+                        <lightning-button-icon icon-name="utility:record_create" variant="bare" alternative-text="New Component" title="New Component" onclick={createcomponentbundle}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:refresh" variant="bare" alternative-text="Refresh" title="Refresh" onclick={fetchLwcComponents} class="slds-m-left_x-small"></lightning-button-icon>                        
+                    </div>                    
+                </div>
+                <div class="file-explorer">
+                    <!--lightning-tree items={componentTree} selected-item={selectedTreeComponent}
+                        onselect={handleComponentClick}>
+                    </lightning-tree-->
+                    <div class="slds-tree_container">
+                        <!--h4 class="slds-tree__group-header" id="treeheading">Tree Group Header</h4-->
+                        <ul class="slds-tree"> 
+                            <template for:each={componentTree} for:item="bundle">
+                            <li aria-level="1" data-expanded={bundle.expanded} key={bundle.fileid} data-id={bundle.fileid}>
+                                <div class="slds-tree__item">                                    
+                                    <lightning-button-icon icon-name="utility:chevrondown" variant="bare" alternative-text="Collapse" title="Collapse" lwc:if={bundle.expanded} onclick={bundle.expandtoggle}></lightning-button-icon>                                    
+                                    <lightning-button-icon icon-name="utility:chevronright" variant="bare" alternative-text="Expand" title="Expand" lwc:else onclick={bundle.expandtoggle}></lightning-button-icon>
+                                    
+                                    <span class="slds-has-flexi-truncate slds-m-left_x-small" onclick={bundle.expandtoggle}>                                        
+                                        <span class="slds-tree__item-label slds-truncate" title={bundle.name}>
+                                            <lightning-icon icon-name="doctype:folder" size="x-small"></lightning-icon>
+                                            <span class="slds-p-left_xx-small text">{bundle.name}</span>
+                                        </span>
+                                    </span>
+                                    <div class="slds-clearfix slds-p-horizontal_x-small">
+                                        <div class="slds-float_right">   
+                                            <!--lightning-button-icon icon-name="utility:record_create" variant="bare" alternative-text="New File" title="New File"></lightning-button-icon-->
+                                            <lightning-button-icon icon-name="action:add_file" variant="bare" alternative-text="New File" title="New File" onclick={bundle.createlwcfile}></lightning-button-icon>
+                                            <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Delete" title="Delete" onclick={bundle.deletelwcbundle} class="slds-m-left_xx-small"></lightning-button-icon>                                             
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="treeitem">
+                                    <template for:each={bundle._children} for:item="item">
+                                    <li aria-level="2" aria-selected={item.active} role="treeitem" key={item.fileid}>
+                                        <div class="slds-tree__item" data-id={item.fileid}>                        
+                                            <span class="slds-m-left_medium slds-has-flexi-truncate clickableitem" onclick={item.openresource}>
+                                                <span class="slds-tree__item-label slds-truncate" title={item.name}>
+                                                    <lightning-icon icon-name={item.iconname} size="x-small"></lightning-icon>
+                                                    <span class="slds-p-left_xx-small text">{item.name}</span>
+                                                </span>
+                                            </span>
+                                            <div class="slds-clearfix slds-p-horizontal_x-small">
+                                                <div class="slds-float_right">                                                    
+                                                    <lightning-button-icon icon-name="utility:delete"  variant="bare" alternative-text="Delete" title="Delete" onclick={item.deletelwcfile}></lightning-button-icon>                                                                                                 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    </template>
+                                </ul>
+                            </li>   
+                            </template>     
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="resizer-x" onmousedown={handleOnMouseDown}></div>
+        <div class="resizeable-item-2">
+            <!--div class="right-panel"-->
+                <!--lightning-tabset>
+                    <template for:each={opencomponents} for:item="component">
+                        <lightning-tab label={component.name} value={component.fileid} key={component.fileid} end-icon-name="utility:close" onclick={handletabclick}>
+                            <div class="code-panel">
+                                <iframe src={component.codeeditorurl} height="100%" width="100%"></iframe>                                        
+                            </div>
+                        </lightning-tab>
+                    </template>                            
+                </lightning-tabset-->
+                <div class="right-panel slds-tabs_default slds-sub-tabs opentabs">
+                    <ul class="slds-tabs_default__nav">
+                        <template for:each={opencomponents} for:item="component">
+                            <li key={component.fileid} data-active={component.active} data-modified={component.modified} 
+                                class="slds-tabs_default__item slds-sub-tabs__item slds-grid slds-grid_vertical-align-center slds-border_right"
+                                data-fileid={component.fileid} onclick={handletabclick}>
+                                <div class="slds-tabs_default__link slds-p-horizontal_xx-small" title={component.name}>
+                                    <span class="slds-indicator-container" lwc:if={component.modified}>
+                                        <abbr class="slds-indicator_unsaved" title="not saved">*</abbr>
+                                        <!--span class="slds-indicator_unread" title="unsaved" role="img"></span-->
+                                    </span>
+                                    <lightning-icon icon-name={component.iconname} size="x-small"></lightning-icon>
+                                    <span class="slds-truncate slds-p-left_xxx-small text" title={component.name}>{component.name}</span>
+                                </div>
+                                <div class="slds-col_bump-left slds-p-left_none slds-p-right_none">
+                                    <button class="slds-button slds-button_icon slds-button_icon-container slds-button_icon-x-small"
+                                        title="Close" data-fileid={component.fileid} onclick={closetab}>
+                                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="x-small"></lightning-icon>
+                                    </button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                    <template for:each={opencomponents} for:item="component">
+                        <div key={component.fileid} class="slds-tabs_default__content code-panel" data-fileid={component.fileid} data-active={component.active} >
+                            <iframe src={component.codeeditorurl} height="100%" width="100%"></iframe>                            
+                        </div>
+                    </template>
+                </div>
+            
+        </div>
+    </section>
+
+</template>

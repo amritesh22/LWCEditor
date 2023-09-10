@@ -1,0 +1,111 @@
+.bundle li {
+    margin-left: 10px;
+}
+.code-container{
+    width: 100%;
+    min-height: 500px;
+    height: 100%;
+}
+
+.resizeable-container {
+    display: flex;
+    min-height: 1vh;
+    height: 100vh;
+}
+
+.resizeable-item-1 {
+    flex: 25%;
+    overflow-x: auto;
+    height: 100%;
+}
+.resizeable-item-2 {
+    flex: 75%;
+    overflow-x: auto;
+    height: 100%;
+}
+
+.resizer-x {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: hsl(212, 100%, 17%);
+}
+
+.resizer-x {
+    z-index: 2;
+    cursor: col-resize;
+}
+
+.resizer-x::before {
+    content: "";
+    width: 2px;
+    height: 16px;
+    margin: 2px;
+    background: lightgray;
+}
+.left-panel, .right-panel {
+    height: 100%;    
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.file-explorer {
+    width: calc(100% - 2px);
+    overflow: auto;
+    flex-grow: 1;
+    padding-bottom: 30px;
+}
+.code-panel{
+    /*height: calc(100vh - 65px);*/    
+    flex-grow: 1;
+}
+
+.treeheader {
+    padding: 9px 10px;
+    border-bottom: 1px solid rgb(174, 174, 174);
+    font-weight: 500;
+}
+.opentabs .slds-sub-tabs__item .slds-tabs_default__link {
+    height: 27px;
+    line-height: 27px;
+    /*max-width: 150px;*/
+}
+.opentabs .slds-tabs_default__content {
+    padding: 5px 0 1px 0;
+}
+.opentabs .slds-tabs_default__content[data-active="false"] {
+    display: none;
+}
+.opentabs .slds-tabs_default__content iframe {
+    border: 0;
+}
+.opentabs .slds-tabs_default__nav{
+    overflow-x: auto;
+}
+.opentabs .slds-sub-tabs__item {
+    color: #333;
+    /*padding-left: 3px;*/
+    padding-right: 3px;
+}
+.opentabs .slds-sub-tabs__item:hover {
+    color: black;
+}
+.opentabs .slds-sub-tabs__item[data-active="true"]  {
+    color: black;
+    background-color: rgba(21, 137, 238, 0.1);
+    /*font-weight: 500;*/
+    border-bottom: 3px solid rgb(27, 150, 255);
+}
+.slds-indicator_unsaved{
+    font-weight: 900;
+}
+.slds-tree [data-expanded="false"] .treeitem { 
+    display: none; 
+}
+.slds-tree__item .text:hover, .opentabs .slds-tabs_default__link .text:hover {
+    text-decoration: underline;
+}
+.slds-indicator_unread, .slds-indicator--unread {
+    top: 0.8rem;
+}
