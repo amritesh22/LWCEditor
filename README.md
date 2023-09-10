@@ -1,4 +1,4 @@
-# Lightning Web Component Editor
+# Salesforce Lightning Web Component Editor
 Sometimes you are in a hurry or used to edit code in Developer console.  
 This lwc component uses tooling api to allow editing of lwc components directly from salesforce.  
   
@@ -8,3 +8,6 @@ sf project deploy start
 ```  
   
 - Enable access to Tab : LWC Editor Launcher (LWCEditorLauncher)
+
+## Demo
+![LWC Editor Demo](LWC_Editor.gif)
