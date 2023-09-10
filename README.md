@@ -1,5 +1,5 @@
 # Lightning Web Component Editor
-Sometimes you need are in a hurry or used to Developer console for editing code.  
+Sometimes you are in a hurry or used to edit code in Developer console.  
 This lwc component uses tooling api to allow editing of lwc components directly from salesforce.  
   
 - To deploy using salesforce cli, use below command  
